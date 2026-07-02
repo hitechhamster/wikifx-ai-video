@@ -1,0 +1,81 @@
+# ============================================================
+# 配置模板 —— 复制本文件为 config.toml,填上你自己的密钥/路径后再运行。
+#   cp config.example.toml config.toml   (Windows: copy config.example.toml config.toml)
+# config.toml 已被 .gitignore 忽略,不会进仓库,请勿把真实密钥提交上来。
+# 各 key 免费注册:Gemini(Google AI Studio)/ DeepSeek / Pexels / Pixabay
+# ============================================================
+[app]
+video_source = "pexels"
+hide_config = false
+edge_tts_timeout = 30
+tls_verify = true
+
+# —— 素材图库(必填至少 Pexels;强烈建议也填 Pixabay 扩池)——
+pexels_api_keys = [ "YOUR_PEXELS_API_KEY",]
+pixabay_api_keys = [ "YOUR_PIXABAY_API_KEY",]
+coverr_api_keys = []
+
+# —— LLM(生成每句画面搜索词 + 脚本情绪分类)——
+llm_provider = "deepseek"
+deepseek_api_key = "YOUR_DEEPSEEK_API_KEY"
+deepseek_base_url = "https://api.deepseek.com"
+deepseek_model_name = "deepseek-chat"
+openai_api_key = ""
+openai_base_url = ""
+openai_model_name = "gpt-4o-mini"
+openai_tts_model = "tts-1"
+
+# —— Gemini(配音 TTS + 素材真实/相关性判定 + embedding),核心必填 ——
+gemini_api_key = "YOUR_GEMINI_API_KEY"
+gemini_model_name = "gemini-3.1-flash-lite"
+gemini_tts_model = "gemini-3.1-flash-tts-preview"
+gemini_embedding_model = "gemini-embedding-001"
+
+subtitle_provider = "edge"
+material_directory = ""
+enable_redis = false
+redis_host = "localhost"
+redis_port = 6379
+redis_db = 0
+redis_password = ""
+max_concurrent_tasks = 5
+max_queued_tasks = 100
+match_materials_to_script = false
+
+# —— 编码 ——
+# 有 NVIDIA 显卡(驱动 570+)用 h264_nvenc + 填下面 ffmpeg_path 指向支持 NVENC 的 ffmpeg;
+# 否则改成 "libx264"(纯 CPU,慢但通用),ffmpeg_path 可留空走系统 ffmpeg。
+video_codec = "libx264"
+ffmpeg_path = ""
+
+upload_post_enabled = false
+upload_post_api_key = ""
+upload_post_username = ""
+upload_post_platforms = [ "tiktok", "instagram",]
+upload_post_auto_upload = false
+
+[whisper]
+model_size = "large-v3"
+device = "CPU"
+compute_type = "int8"
+
+[proxy]
+
+[azure]
+speech_key = ""
+speech_region = ""
+
+[siliconflow]
+api_key = ""
+
+[ui]
+hide_log = false
+language = "zh"
+voice_name = "zh-CN-XiaoxiaoNeural-Female"
+font_name = "MicrosoftYaHeiBold.ttc"
+subtitle_position = "bottom"
+text_fore_color = "#FFFFFF"
+font_size = 60
+subtitle_background_enabled = true
+subtitle_background_color = "#000000"
+rounded_subtitle_background = false

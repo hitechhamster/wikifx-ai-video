@@ -1,0 +1,17 @@
+{
+  "video_subject": "Forex Market Weekly Analysis",
+  "video_script": "The US dollar index is trading near a three month high this week. Currency analysts point to stronger than expected employment data as the main driver. Meanwhile, gold prices have pulled back slightly as investors rotate into equities. Crude oil remains volatile amid ongoing supply concerns. Traders are watching the upcoming central bank meeting closely for signals on future rate policy.",
+  "video_language": "en",
+  "video_source": "pexels",
+  "video_aspect": "9:16",
+  "video_clip_duration": 5,
+  "voice_name": "gemini:Puck-Male",
+  "voice_rate": 1.2,
+  "subtitle_enabled": true,
+  "bgm_volume": 0.2,
+  "paragraph_number": 1,
+  "use_orchestrator": true,
+  "local_threshold": 0.5,
+  "min_local_segments": 1,
+  "use_mood_bgm": true
+}
