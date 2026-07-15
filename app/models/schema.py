@@ -135,6 +135,7 @@ class VideoParams(BaseModel):
     # BGM 试听 + 手动指定(2026-06-18 第三轮)
     bgm_mode: str = "auto"               # "auto"(自动选曲) | "manual"(用户在前端直接选曲，覆盖自动逻辑)
     bgm_max_energy: int = 5              # 自动选曲池的 energy 上限(1-5)，覆盖最吵的那批时调成 3~4
+    bgm_news_safe: bool = False          # True=新闻紧张曲池过滤吉他/摇滚/嘻哈等风格化曲目
 
     # 财经突发新闻包装(news_mode，2026-06-18 第四轮)
     news_mode: bool = False              # 总开关:lower-third标题条+底部ticker+角标+新闻字幕样式+主播腔

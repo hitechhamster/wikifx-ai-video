@@ -26,6 +26,22 @@ from app.utils import utils
 
 _DB_FILE = "songs.db"
 _VALID_MOODS = ("professional", "tense", "uplifting", "neutral")
+_NEWS_SAFE_BLOCKED_TERMS = (
+    "guitar",
+    "guitars",
+    "electric guitar",
+    "acoustic guitar",
+    "rock",
+    "industrial rock",
+    "metal",
+    "riff",
+    "riffs",
+    "strum",
+    "strumming",
+    "hip-hop",
+    "hip hop",
+    "trap",
+)
 
 TAGGING_PROMPT = """Analyze this background music track for a forex/financial video production system.
 Return ONLY a JSON object (no markdown fences, no extra text):
@@ -110,6 +126,20 @@ def list_all(db_path: str = None) -> List[SongRecord]:
             "created_at, updated_at FROM songs ORDER BY id"
         ).fetchall()
     return [_row_to_record(r) for r in rows]
+
+
+def _is_news_safe_bgm(song: SongRecord) -> bool:
+    """Reject tracks that sound too musical/genre-forward for tense finance news."""
+    haystack = f"{os.path.basename(song.path)} {song.description}".lower()
+    return not any(term in haystack for term in _NEWS_SAFE_BLOCKED_TERMS)
+
+
+def _filter_news_safe_bgm(songs: List[SongRecord], label: str) -> List[SongRecord]:
+    safe = [s for s in songs if _is_news_safe_bgm(s)]
+    blocked = len(songs) - len(safe)
+    if blocked:
+        logger.info(f"{label}: news-safe filter removed {blocked} guitar/rock/genre-forward tracks")
+    return safe
 
 
 def get_by_id(song_id: int, db_path: str = None) -> Optional[SongRecord]:
@@ -318,6 +348,7 @@ def select_bgm(
     target_energy: Optional[int] = None,
     exclude_paths: set = None,
     db_path: str = None,
+    news_safe: bool = False,
 ) -> Optional[str]:
     """
     Pick a song matching mood (random among matches, never first-by-default —
@@ -350,11 +381,18 @@ def select_bgm(
             logger.info("select_bgm: mood='neutral' (无明确情绪) → 默认偏好 tense + 高energy")
 
     matches = [s for s in tagged if s.mood == effective_mood]
+    if news_safe:
+        matches = _filter_news_safe_bgm(matches, "select_bgm")
     pool_label = f"mood match ({effective_mood})" if effective_mood != mood else "mood match"
     if not matches:
         logger.warning(f"select_bgm: no songs tagged mood='{effective_mood}', falling back to any tagged song")
         matches = tagged
+        if news_safe:
+            matches = _filter_news_safe_bgm(matches, "select_bgm fallback")
         pool_label = "fallback (any mood)"
+        if not matches:
+            logger.warning("select_bgm: no news-safe tagged songs available")
+            return None
 
     if exclude_paths:
         non_repeat = [s for s in matches if s.path not in exclude_paths]
@@ -382,6 +420,7 @@ def select_tense_or_high_energy_bgm(
     max_energy: int = 5,
     exclude_paths: set = None,
     db_path: str = None,
+    news_safe: bool = True,
 ) -> Optional[str]:
     """
     "快速紧张"风格专用选曲池:产品要的是"听感快速紧张"，不是严格匹配
@@ -404,6 +443,8 @@ def select_tense_or_high_energy_bgm(
         s for s in tagged
         if (s.mood == "tense" or s.energy >= min_energy) and s.energy <= max_energy
     ]
+    if news_safe:
+        pool = _filter_news_safe_bgm(pool, "select_tense_or_high_energy_bgm")
     pool_label = f"tense∪energy>={min_energy}, energy<={max_energy}"
     if not pool:
         logger.warning(
@@ -411,7 +452,12 @@ def select_tense_or_high_energy_bgm(
             f"energy>={min_energy}, falling back to any tagged song"
         )
         pool = tagged
+        if news_safe:
+            pool = _filter_news_safe_bgm(pool, "select_tense_or_high_energy_bgm fallback")
         pool_label = "fallback (any mood)"
+        if not pool:
+            logger.warning("select_tense_or_high_energy_bgm: no news-safe tagged songs available")
+            return None
 
     if exclude_paths:
         non_repeat = [s for s in pool if s.path not in exclude_paths]
@@ -425,3 +471,5 @@ def select_tense_or_high_energy_bgm(
         f"chosen {os.path.basename(chosen.path)} (mood={chosen.mood}, energy={chosen.energy})"
     )
     return chosen.path
+
+

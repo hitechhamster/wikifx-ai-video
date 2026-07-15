@@ -4,6 +4,9 @@
 
 # —— 密钥!真实配置(含 API key),只留 config.example.toml ——
 config.toml
+keys_local.py
+# Colab 社媒发帖脚本:含硬编码明文密钥,只留本地,不入库
+ai社媒发帖机器人(印度).py
 
 # —— 运行时产物 / 缓存(几个 G,同事跑时自动重新生成)——
 storage/
@@ -27,3 +30,10 @@ Thumbs.db
 # —— 临时 ——
 *.log
 scratchpad/
+# MoviePy 在项目根偶发遗留的临时音频/正片
+*TEMP_MPY_wvf_snd.mp4
+_main_*.mp4
+
+# —— 不属于本仓库的其它项目 ——
+birthday-coupon-worker/
+_push_birthday_coupon_worker/

@@ -211,6 +211,8 @@ def main(template_dir: str):
                     target_seconds=cfg.get("target_seconds", 25.0),
                     voiceover=vo, voice_name=cfg.get("voice_name", "gemini:Puck-Male"),
                     voice_rate=cfg.get("voice_rate", 1.0),
+                    transition_count=cfg.get("transition_count", 999),
+                    hook_font=cfg.get("hook_font", ""),
                 )
                 if not os.path.isfile(main_video):
                     main_video, status, err = "", "failed", "montage 未产出"

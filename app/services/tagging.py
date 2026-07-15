@@ -85,16 +85,26 @@ def _load_real_footage_cache() -> dict:
 
 
 def _save_real_footage_cache(cache: dict) -> None:
+    # 原子写:并行跑多条视频时,直接 open(...,"w") 会先截断再写,另一个进程可能读到
+    # 半截 JSON → _load 静默返回 {} → 整个判定缓存作废、所有素材重跑 Gemini 判定。
+    # 先写同目录临时文件再 os.replace(Windows 上也是原子的),读者永远看到完整文件。
+    path = _real_footage_cache_path()
+    tmp = f"{path}.{os.getpid()}.tmp"
     try:
-        with open(_real_footage_cache_path(), "w", encoding="utf-8") as f:
+        with open(tmp, "w", encoding="utf-8") as f:
             json.dump(cache, f)
+        os.replace(tmp, path)
     except Exception as e:
         logger.warning(f"failed to save real_footage_cache: {e}")
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
 
 
 # 判定逻辑版本号:每次改 classify_footage 的判定 prompt/逻辑就 +1,让旧缓存自动失效。
 # 否则升级了判定标准,之前判错的结论(比如把动效图判成"通过")会一直赖在缓存里被复用。
-_CLASSIFY_LOGIC_VERSION = "v5"
+_CLASSIFY_LOGIC_VERSION = "v6"
 
 
 # 严格相关性开关(默认关)。开启后,相关性判定从"是否泛财经"收紧成"画面里是否清楚
@@ -119,6 +129,15 @@ def _footage_cache_key(sha: str, topic: str, strict: bool) -> str:
     return f"{_CLASSIFY_LOGIC_VERSION}|{mode}|{base}"
 
 
+
+def _is_feng_shui_home_topic(topic: str) -> bool:
+    t = (topic or "").lower()
+    return (
+        "feng shui" in t
+        or "home interior" in t
+        or "bedroom mirror" in t
+        or "bed placement" in t
+    )
 def classify_footage(video_path: str, topic: str = "", strict: bool = None) -> bool:
     """
     一次 Gemini 调用同时判定:这段素材(取一帧)是否
@@ -197,7 +216,22 @@ def _classify_footage_uncached(video_path: str, topic: str = "", strict: bool = 
         with open(source_image_path, "rb") as f:
             image_bytes = f.read()
 
-        if topic and strict:
+        if topic and _is_feng_shui_home_topic(topic):
+            question = (
+                f"This frame is b-roll for an English Feng Shui home-layout explainer "
+                f"about: \"{topic}\".\n"
+                f"Answer GOOD only if the frame clearly shows an indoor residential "
+                f"home/interior scene suitable for Feng Shui education: bedroom, bed, "
+                f"wall mirror, wardrobe mirror, doorway/foyer inside a home, calm living "
+                f"room, indoor plant by a window, warm lamp, or home hallway.\n"
+                f"Answer REJECT if it shows cars, car mirrors, roads, streets, parking "
+                f"garages, trains, buses, outdoor traffic, city exteriors, shops, offices, "
+                f"hotels that do not read as home interiors, abstract water/nature shots, "
+                f"unrelated people outside, text graphics, animation, cartoon, 3D render, "
+                f"or anything not clearly home/interior Feng Shui related.\n"
+                f"Answer with EXACTLY one word: GOOD or REJECT."
+            )
+        elif topic and strict:
             # 主题相关(中等严格):接受 (a) 真黄金/贵金属/金饰 或 (b) 明确的金融市场/
             # 交易画面(交易员看盘、K线行情屏、交易大厅、银行、金融数据)。这样大部分镜头
             # 用真实视频(黄金视频在免费库太少),又能挡掉明显跑题的(酒店/旅游/街景/他国
@@ -494,3 +528,4 @@ def run_tagging(local_dir: str = None, db_path: str = None, max_retries: int = 2
         f"skipped={stats['skipped']} failed={stats['failed']}"
     )
     return stats
+

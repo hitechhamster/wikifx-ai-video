@@ -84,10 +84,15 @@ def make_intro(text_top: str, text_bottom: str, whoosh_wav: str, out_path: str):
     except Exception as e:
         print("whoosh audio skipped:", e)
 
-    final.write_videofile(
-        out_path, fps=FPS, codec="libx264", audio_codec="aac",
-        preset="medium", logger=None,
-    )
+    try:
+        final.write_videofile(
+            out_path, fps=FPS, codec="libx264", audio_codec="aac",
+            preset="medium", logger=None,
+        )
+    except PermissionError:
+        if not (os.path.isfile(out_path) and os.path.getsize(out_path) > 0):
+            raise
+        print("intro temp cleanup ignored:", out_path)
 
 
 def make_image_intro(image_path: str, text: str, whoosh_wav: str, out_path: str,
@@ -130,8 +135,13 @@ def make_image_intro(image_path: str, text: str, whoosh_wav: str, out_path: str,
     except Exception as e:
         print("intro whoosh skipped:", e)
 
-    clip.write_videofile(out_path, fps=FPS, codec="libx264", audio_codec="aac",
-                         preset="medium", logger=None)
+    try:
+        clip.write_videofile(out_path, fps=FPS, codec="libx264", audio_codec="aac",
+                             preset="medium", logger=None)
+    except PermissionError:
+        if not (os.path.isfile(out_path) and os.path.getsize(out_path) > 0):
+            raise
+        print("intro temp cleanup ignored:", out_path)
     return out_path
 
 
@@ -210,3 +220,4 @@ if __name__ == "__main__":
     make_intro(top, bottom, whoosh, intro)
     concat(intro, main_v, outro_v, out_v)
     print("DONE:", out_v)
+

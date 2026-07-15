@@ -13,6 +13,9 @@ from app.services import state as sm
 from app.utils import file_security, utils
 
 
+_AUTO_BGM_SESSION_EXCLUDE = set()
+
+
 def generate_script(task_id, params):
     logger.info("\n\n## generating video script")
     video_script = params.video_script.strip()
@@ -467,6 +470,7 @@ def _start_impl(task_id, params: VideoParams, stop_at: str = "video"):
         logger.info(f"bgm_mode=manual: 使用用户指定曲目，跳过自动选曲: {params.bgm_file}")
     elif getattr(params, "use_mood_bgm", False):
         from app.services import bgm_library
+        news_safe_bgm = bool(getattr(params, "bgm_news_safe", False) or getattr(params, "news_mode", False))
         if getattr(params, "force_tense_bgm", False):
             # "快速紧张"风格:跳过脚本情绪识别，从放宽后的 tense∪高energy 池选曲
             # (不死磕 mood=tense 标签，高能量的 professional/uplifting 曲目同样
@@ -475,17 +479,25 @@ def _start_impl(task_id, params: VideoParams, stop_at: str = "video"):
             mood = "tense-or-high-energy"
             max_energy = getattr(params, "bgm_max_energy", 5)
             bgm_path = bgm_library.select_tense_or_high_energy_bgm(
-                min_energy=4, max_energy=max_energy
+                min_energy=4, max_energy=max_energy,
+                exclude_paths=_AUTO_BGM_SESSION_EXCLUDE, news_safe=news_safe_bgm,
             )
-            logger.info(f"force_tense_bgm: 强制 tense∪energy>=4(上限{max_energy})，跳过脚本情绪识别")
+            logger.info(f"force_tense_bgm: 强制 tense∪energy>=4(上限{max_energy})，news_safe={news_safe_bgm}，跳过脚本情绪识别")
         else:
             mood = bgm_library.analyze_script_mood(video_script)
-            bgm_path = bgm_library.select_bgm(mood)
+            bgm_path = bgm_library.select_bgm(
+                mood, exclude_paths=_AUTO_BGM_SESSION_EXCLUDE, news_safe=news_safe_bgm
+            )
         if bgm_path:
             params.bgm_file = bgm_path
+            _AUTO_BGM_SESSION_EXCLUDE.add(bgm_path)
             logger.info(f"mood bgm: script_mood='{mood}' → {bgm_path}")
         else:
-            logger.warning("mood bgm: no tagged songs available, falling back to random bgm")
+            if news_safe_bgm:
+                params.bgm_type = ""
+                logger.warning("mood bgm: no news-safe songs available, disabling random bgm fallback")
+            else:
+                logger.warning("mood bgm: no tagged songs available, falling back to random bgm")
 
     # 仅完整视频生成流程才需要处理视频拼接模式；
     # 这样可以避免 /subtitle 和 /audio 这类请求访问不存在的字段。
