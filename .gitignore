@@ -3,7 +3,9 @@
 # ============================================================
 
 # —— 密钥!真实配置(含 API key),只留 config.example.toml ——
-config.toml
+# 只锚定根目录的 app 配置(含密钥)。不能写成裸 config.toml —— 那会连
+# templates/*/config.toml(模板参数,无密钥,必须入库,否则 clone 后模板跑不了)一起忽略掉。
+/config.toml
 keys_local.py
 # Colab 社媒发帖脚本:含硬编码明文密钥,只留本地,不入库
 ai社媒发帖机器人(印度).py

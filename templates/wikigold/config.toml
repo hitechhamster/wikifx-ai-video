@@ -1,0 +1,58 @@
+# ============================================================
+# 模板: wikigold(英语黄金促销)
+# 片头/片尾都从 wikigold 投放尾板视频里截时间段:0-1s 品牌亮相当片头、
+# 7-9s 下载 CTA 当片尾。BGM 用 output042 的"最紧张段"(音纹分析自动截取)。
+# 不开 news_mode(新闻角标/WIKIFX NEWS 横条是 WikiFX 品牌,不适合 WikiGold)。
+# ============================================================
+
+# —— 内容 ——
+# 视频 b-roll 主题走"通用金融/市场/城市"(免费库素材丰富,每段都填得上);黄金镜头靠
+# 下面 image_query 强制插 1 张黄金图保证。用户诉求:至少 1 个黄金镜头,其余市场/大盘/城市即可。
+video_subject   = "financial markets stock exchange trading floor city skyline finance money"
+image_query     = "gold bars stacked, gold bullion, gold coins, gold jewelry"  # 图片插槽固定搜黄金
+# 视频段固定从这个通用词库循环取词(不跟黄金句子走,免得搜黄金视频搜空):
+# 去掉了"trading monitors / candlestick screen"这类——免费库里多是比特币交易桌(会混进BTC);
+# 改用传统证券所/大盘/城市/银行,既贴题又基本不出现加密货币:
+video_query_pool = "new york stock exchange trading floor, stock market ticker board, busy city street traffic, financial district skyscrapers, bank building exterior, business people walking in city, wall street sign, city skyline aerial view"
+video_language  = "en"
+video_source    = "pexels"
+video_aspect    = "9:16"
+
+# —— 不走新闻包装(干净促销片:字幕+黄金画面+紧张配乐+品牌片头尾)——
+news_mode       = false
+
+# —— 配音 ——
+voice_name      = "gemini:Puck-Male"
+voice_rate      = 1.15
+
+# —— 剪辑(促销节奏,适度快切配紧张乐)——
+clip_speed_factor     = 1.25
+video_clip_duration   = 3.0
+min_clip_duration     = 2.0
+align_clips_to_script = true
+diversify_broll       = true
+image_insert_every    = 4        # 大部分用视频,每 4 段插 1 张 Pixabay 黄金图(金条/金币/金饰)+Ken Burns 做点缀(7段脚本≈1张黄金图,其余视频)
+material_cooldown_videos = 3
+video_transition_mode = "Tense"
+tense_transition_count = 0        # 全图片montage:关掉甩入转场(会在图片片段间露黑边),全部硬切
+
+# —— 编排/素材 ——
+use_orchestrator  = true
+local_threshold   = 0.5
+min_local_segments = 1
+strict_topic_relevance = false  # 不严格:用户只要"至少1个黄金镜头",其余市场/大盘/城市街景都可以;强制1张黄金图(下方image_insert_every)保证黄金感,其余段落用常规判定填真实视频(城市/交易/金融街),不留空镜
+
+# —— BGM:output042 的最紧张段(音纹分析)——
+bgm_mode         = "manual"
+bgm_file         = "bgm.mp3"     # = output042
+bgm_tense_window = 30            # 音纹分析截取最紧张的 30 秒(混音循环铺满全片)
+bgm_volume       = 0.2
+
+# —— 片头/片尾:从同一条品牌视频截时间段 ——
+intro_clip_video = "resource/wikigold-EN-投放尾板.mp4"
+intro_clip_start = 0.0
+intro_clip_end   = 1.0
+outro_clip_video = "resource/wikigold-EN-投放尾板.mp4"
+outro_clip_start = 7.0
+outro_clip_end   = 10.4      # 截到素材末尾:下载 CTA 整版(含 Stay Ahead 文案 + Google Play/App Store 角标)在最后才出齐,不能在 9s 就切断
+outro_freeze_tail = 1.5      # 末帧再定格 1.5s,让完整下载页看全/读得清(总片尾≈4.9s)

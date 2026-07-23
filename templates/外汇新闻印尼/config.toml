@@ -1,0 +1,50 @@
+# ============================================================
+# 模板: 外汇新闻(印尼语) — BERITA FOREX
+# 和 外汇新闻 模板同结构,差异:印尼语配音/字幕、不加速、片头印尼语、片尾 5 秒。
+# ============================================================
+
+# —— 内容 ——
+video_subject   = "Berita Pasar Forex"     # 印尼语主题
+video_language  = "id"                      # 印尼语
+video_source    = "pexels"
+video_aspect    = "9:16"
+
+# —— 新闻包装 ——
+news_mode       = true
+news_badge_text = "BERITA FOREX"            # 左上角角标(印尼语)
+
+# —— 配音(印尼语,不加速)——
+voice_name      = "gemini:Puck-Male"
+voice_rate      = 1.0                        # 不加速(英文模板是 1.2)
+
+# —— 剪辑(不加速)——
+clip_speed_factor     = 1.0                  # 不加速(英文模板是 1.3)
+video_clip_duration   = 3.0
+min_clip_duration     = 2.0
+align_clips_to_script = true
+diversify_broll       = true
+image_insert_every    = 0        # 全视频(新闻片静态图久停会卡;缺素材时 orchestrator 自动图片兜底)
+material_cooldown_videos = 3
+video_transition_mode = "Tense"
+tense_transition_count = 2
+
+# —— 编排/素材 ——
+use_orchestrator  = true
+local_threshold   = 0.5
+min_local_segments = 1
+
+# —— BGM ——
+use_mood_bgm    = true
+force_tense_bgm = true
+bgm_mode        = "auto"
+bgm_file        = ""
+bgm_max_energy  = 4
+bgm_news_safe  = true
+bgm_volume      = 0.2
+
+# —— 片头 / 片尾 ——
+intro_enabled = true
+intro_image   = "resource/片头.png"
+intro_text    = "BERITA FOREX"              # 片头擦入文字(印尼语)
+outro_video   = "resource/片尾.mp4"
+outro_seconds = 5                           # 片尾 5 秒(比英文模板 +2,放完 APP 下载 CTA)

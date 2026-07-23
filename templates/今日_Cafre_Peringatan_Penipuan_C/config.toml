@@ -1,0 +1,51 @@
+# ============================================================
+# 模板: 诈骗预警(英语) — FRAUD ALERT
+# 和 外汇新闻 同结构,差异:品牌做成 FRAUD ALERT(角标+片头),主题是诈骗预警。
+# 保留快切紧张风格(诈骗片要紧张感)。片尾 5 秒(放完 APP 下载 CTA)。
+# ============================================================
+
+# —— 内容 ——
+video_subject   = "Forex scam fraud alert India"
+video_language  = "en"
+video_source    = "pexels"
+video_aspect    = "9:16"
+
+# —— 新闻包装 ——
+news_mode       = true
+news_badge_text = "FRAUD ALERT"             # 左上角角标
+
+# —— 配音 ——
+voice_name      = "gemini:Puck-Male"
+voice_rate      = 1.0
+
+# —— 剪辑(快切紧张)——
+clip_speed_factor     = 1.3
+video_clip_duration   = 3.0
+min_clip_duration     = 2.0
+align_clips_to_script = true
+diversify_broll       = true
+image_insert_every    = 0        # 新闻片全用真实视频:定时插的静态图落在长句上会被拉长慢放、显得卡住/重复;改0,缺素材时 orchestrator 会自动兜底插图填空档
+material_cooldown_videos = 3
+video_transition_mode = "Tense"
+tense_transition_count = 2
+
+# —— 编排/素材 ——
+use_orchestrator  = true
+local_threshold   = 0.5
+min_local_segments = 1
+
+# —— BGM ——
+use_mood_bgm    = true
+force_tense_bgm = true
+bgm_mode        = "auto"
+bgm_file        = ""
+bgm_max_energy  = 4
+bgm_news_safe  = true
+bgm_volume      = 0.2
+
+# —— 片头 / 片尾 ——
+intro_enabled = true
+intro_image   = "resource/片头.png"
+intro_text    = "FRAUD ALERT"               # 片头擦入文字
+outro_video   = "resource/片尾.mp4"
+outro_seconds = 5                           # 片尾 5 秒(放完 APP 下载 CTA)

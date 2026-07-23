@@ -1,0 +1,63 @@
+# ============================================================
+# Template: English Feng Shui Mystery Explainer
+# Style: quiet suspense, premium home interiors, practical tips.
+# scripts.csv columns: script(required) / title / subject / badge / language
+# ============================================================
+
+# Content
+video_subject   = "feng shui home interior bedroom mirror"
+video_language  = "en"
+video_source    = "pexels"
+video_aspect    = "9:16"
+
+# Keep this out of financial/news packaging.
+news_mode       = false
+
+# Voice
+voice_name      = "gemini:Puck-Male"
+voice_rate      = 1.0
+voice_volume    = 1.0
+
+# Editing
+clip_speed_factor       = 1.06
+video_clip_duration     = 4.2
+min_clip_duration       = 2.8
+align_clips_to_script   = true
+random_clip_duration    = true
+diversify_broll         = false
+image_insert_every      = 3
+material_cooldown_videos = 3
+video_transition_mode   = "Tense"
+tense_transition_count  = 1
+
+# Stock pool for home/feng-shui visuals. Avoid generic mirror-at-night terms:
+# stock sites often return car mirrors. The subject activates the home-only relevance checker.
+video_query_pool = "bedroom interior wall mirror, modern bedroom interior bed mirror, wardrobe mirror bedroom interior, calm bedroom warm lamp interior, home hallway entrance interior, front door foyer inside home, indoor plant near bedroom window, cozy living room interior shadows, minimal home interior warm light, mirror in bedroom interior design"
+
+# Orchestration
+use_orchestrator   = true
+local_threshold    = 0.5
+min_local_segments = 0
+strict_topic_relevance = false
+
+# Subtitles
+subtitle_enabled = true
+font_size        = 58
+stroke_width     = 1.8
+text_fore_color  = "#FFFFFF"
+stroke_color     = "#111111"
+text_background_color = true
+rounded_subtitle_background = false
+
+# BGM
+bgm_mode      = "manual"
+bgm_file      = "bgm.mp3"
+bgm_volume    = 0.17
+use_mood_bgm  = false
+force_tense_bgm = false
+
+# Bumpers
+intro_enabled = false
+
+
+

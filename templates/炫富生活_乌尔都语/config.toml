@@ -1,0 +1,39 @@
+# ============================================================
+# 模板: TikTok 纯炫富生活混剪 - 乌尔都语版 (LUXURY LIFESTYLE MONTAGE)
+# 纯音乐快切 + 开头短画外音 + 大字炫富 hook。一行一条视频。
+# scripts.xlsx 列: hooks(必填,大字金句,用 | 分隔多条) / keywords(选,覆盖搜索词,| 分隔)
+#              / voiceover(选,覆盖开头画外音) / title(输出名)
+# ============================================================
+
+mode = "montage"          # ← 走"纯音乐混剪"模式(不是新闻脚本模式)
+video_aspect = "9:16"
+
+# —— 炫富素材搜索词(默认;Excel 的 keywords 列可逐行覆盖)——
+# 方向:少一点"素材库硬炫",多一点手机 POV / 细节 / quiet flex,更像 TT 原生生活流。
+keywords = [
+  "luxury car interior pov night", "watch closeup wrist in car", "private jet window seat",
+  "five star hotel elevator mirror", "rooftop skyline night lifestyle", "quiet luxury apartment morning",
+  "black card payment closeup", "designer shopping bags walking", "cash counting closeup",
+  "villa infinity pool morning", "champagne toast closeup", "business class airport lounge",
+]
+
+# —— 混剪节奏(TikTok 感:10秒以内 + 前3秒抓人 + 高级快切)——
+target_seconds = 8.4     # 成片时长(秒);严格保持 <10s,montage.py 也有硬上限兜底
+clip_min = 0.65          # 单刀最短(秒)
+clip_max = 1.05          # 单刀最长(秒);8.4秒约 8~11 刀
+clip_speed_factor = 1.0  # 画面加速(1.0=原速,转场已经够冲)
+n_sources = 10           # 抓多少条独立素材源,减少同一素材反复切
+transition_count = 4     # 强转场数量;其余硬切,避免全程模板味太重
+hook_font = "resource/fonts/Nirmala.ttc"  # Urdu 用 PNG 预渲染字层,避免 RTL 乱码
+
+# —— BGM(默认使用本模板专属 luxury trap 曲)——
+bgm_file = "luxury_trap_bgm.mp3"
+
+# —— 开头画外音(英文短句;说话时 BGM 自动压低)——
+# Excel 的 voiceover 列可逐行覆盖;留空则无画外音。
+voiceover  = "اب میری زندگی ایسی دکھتی ہے۔"
+voice_name = "gemini:Puck-Male"
+voice_rate = 1.0
+
+# —— 片头 / 片尾:炫富混剪不要,关掉 ——
+intro_enabled = false

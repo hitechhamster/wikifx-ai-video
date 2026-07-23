@@ -106,6 +106,14 @@ def _save_real_footage_cache(cache: dict) -> None:
 # 否则升级了判定标准,之前判错的结论(比如把动效图判成"通过")会一直赖在缓存里被复用。
 _CLASSIFY_LOGIC_VERSION = "v6"
 
+# Gemini 相关性判定的网络超时(毫秒)+重试次数。
+# 无超时会在连接挂住时无限死等 —— 批量并行时表现为某条视频永远卡在选材阶段
+# (无 ffmpeg、输出不增长、日志停在 classify_footage),既不报错也不换下一个候选。
+# 单帧判定很快,30s 足够;超时后有限重试,仍失败则由 except 分支优雅降级
+# (图片候选→拒掉换下一张,视频候选→保守放行),绝不无限阻塞。
+_CLASSIFY_TIMEOUT_MS = 30000
+_CLASSIFY_RETRIES = 2
+
 
 # 严格相关性开关(默认关)。开启后,相关性判定从"是否泛财经"收紧成"画面里是否清楚
 # 出现主题本体"(黄金题材→必须真有金条/金币/金饰/金价屏,酒店/他国钞票/泛城市一律拒)。
@@ -274,13 +282,30 @@ def _classify_footage_uncached(video_path: str, topic: str = "", strict: bool = 
                 "one word: REAL or ANIMATED."
             )
 
-        response = client.models.generate_content(
-            model=model,
-            contents=[
-                types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
-                question,
-            ],
+        # 带超时的 generate_content:超时后有限重试,彻底失败则抛出交给下方 except 降级。
+        gen_config = types.GenerateContentConfig(
+            http_options=types.HttpOptions(timeout=_CLASSIFY_TIMEOUT_MS)
         )
+        response = None
+        last_err = None
+        for attempt in range(_CLASSIFY_RETRIES + 1):
+            try:
+                response = client.models.generate_content(
+                    model=model,
+                    contents=[
+                        types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+                        question,
+                    ],
+                    config=gen_config,
+                )
+                break
+            except Exception as e:
+                last_err = e
+                logger.warning(
+                    f"classify_footage: generate_content attempt {attempt + 1} failed ({e})"
+                )
+        if response is None:
+            raise last_err or RuntimeError("classify_footage: generate_content failed")
         answer = (response.text or "").strip().upper()
 
         if topic:
